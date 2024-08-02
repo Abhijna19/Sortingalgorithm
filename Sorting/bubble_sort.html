@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Animation</title>
+    <style>
+        body {
+            background-image: url('https://wallpapercave.com/wp/wp1920736.jpg');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        .video-link {
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+        }
+
+        .video-link:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .containers {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0 auto;
+            width: fit-content;
+            position: relative;
+        }
+
+        #bar-container {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            margin: 20px auto;
+            height: 200px;
+            border: 1px solid #ccc;
+        }
+
+        .bar {
+            position: relative;
+            margin: 0 5px;
+            background-color: #1b5e8a;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .bar span {
+            position: absolute;
+            bottom: 5px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .bar.compare {
+            background-color: #e74c3c;
+        }
+
+        .bar.sorted {
+            background-color: #2ecc71;
+        }
+
+        .comparison-text {
+            position: absolute;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .shape {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            position: relative;
+            transition: transform 0.3s ease;
+            user-select: none;
+        }
+
+        .shape.square {
+            background: rgb(15, 190, 249);
+        }
+
+        .shape.triangle {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid lightcoral;
+        }
+
+        .shape.circle {
+            background: rgb(9, 236, 9);
+            border-radius: 50%;
+        }
+
+        .shape.rectangle {
+            background: rgb(243, 243, 9);
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+
+        .success-message {
+            display: none;
+            font-size: 18px;
+            color: rgb(12, 3, 42);
+            margin-top: 10px;
+        }
+
+        .content-left {
+            text-align: left;
+            margin: 20px;
+        }
+
+        .sortable-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+        }
+
+        .sortable-item {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 18px;
+            display: inline-block;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            color: green;
+            display: none;
+        }
+
+
+
+        .celebration-gif {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .contain {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .grid-container {
+            display: grid;
+            place-items: center;
+            height: 80vh;
+        }
+
+        .bubble-sort-image {
+            width: 300px;
+            height: auto;
+        }
+        #shapes-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .shape {
+            display: inline-block;
+            margin: 10px;
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+            line-height: 80px;
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+        }
+        .circle {
+            border-radius: 50%;
+            background-color: lightblue;
+        }
+        .square {
+            background-color: lightgreen;
+        }
+        .triangle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 80px solid lightcoral;
+        }
+        .pivot {
+            border: 2px solid red;
+        }
+        .check-status {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h1>Welcome!</h1>
+        <h2 class="heading">Let us Learn about Bubble Sorting</h2>
+        <div class="content-left">
+            <p><b>Before going to Bubble Sorting, know about what exactly the Sorting is?</b></p>
+            <p><b>Sorting means arranging things in a specific sequence, like by size, color, or type. For example,
+                    organizing your toys.</b></p>
+
+            <h2>What is Bubble Sort?</h2>
+            <h1> Bubble Sort compares adjacent pairs, and swaps them if they are in the wrong order.</h1>
+            <h2><b>Here let us Consider the set of numbers:</b></h2>
+            <h2 style="color: purple;"><b>First it is 4260 and after sorting it becomes 0246</b></h2>
+            <div class="grid-container">
+                <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*ZDPPdRFJJYRpIJW9i9bXJw.png"
+                    alt="Bubble Sort Algorithm" class="bubble-sort-image">
+            </div>
+            <h2><b>Let us Know it better with Story</b></h2>
+
+
+            <p><b>Once upon a time, there was a row of numbers that wanted to be in the right order. They were all mixed
+                    up, so a magical sorting spell was used.
+                    The spell worked like this: the wizard looked at two numbers at a time. If the first number was
+                    bigger than the second, he swapped them. This made the biggest numbers slowly move to the end, just
+                    like bubbles floating to the top of water.
+                    The wizard kept doing this until the numbers were all in order, and everyone was happy.</p>
+            <p>Given below is an example for Bubble Sort</p>
+            <p>Consider the set of following numbers as shown in the image. This is going to be work as:</p>
+            <p>1. It compares 4 and 3; since 4 is greater, they are swapped, so 3 goes to the first place and 4 comes to
+                the second..</p>
+            <p>2. It compares 4 and 1; since 4 is greater, they are swapped, so 1 goes to the second place and 4 comes
+                to the third.</p>
+            <p>3. It compares 4 and 2; since 4 is greater, they are swapped, so 2 goes to the third place and 4 comes to
+                the fourth.</p>
+            <p>4. It compares 4 and 5; since 5 is not greater, there is no swap.
+            </p>
+            <p>The process repeats, comparing adjacent elements in subsequent passes, until the entire list is sorted.
+            </p>
+            <p>Finally you get the order as 1 2 3 4 5</b></p>
+            <h2><b>Here it is shown below! Please click on Start Sorting </b></h2>
+
+        </div>
+
+        <div id="bar-container">
+            <div class="comparison-text" id="comparison-text"></div>
+        </div>
+        <button id="start-btn" onclick="startSorting()">Start Sorting</button>
+    </div>
+
+    <script>
+        const barContainer = document.getElementById('bar-container');
+        const comparisonText = document.getElementById('comparison-text');
+        const startBtn = document.getElementById('start-btn');
+        let barArray = [4, 3, 1, 2, 5]; // Example data
+        let currentStep = 0;
+        let steps = [];
+
+        function initBars() {
+            barContainer.innerHTML = '';
+            comparisonText.innerHTML = ''; 
+            barArray.forEach(value => {
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${value * 40}px`;
+                bar.style.width = '40px';
+
+                const number = document.createElement('span');
+                number.textContent = value;
+                bar.appendChild(number);
+
+                barContainer.appendChild(bar);
+            });
+            barContainer.appendChild(comparisonText); 
+        }
+
+        function bubbleSort() {
+            steps = [];
+            let arr = barArray.slice();
+            let n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    steps.push({ type: 'compare', indices: [j, j + 1], values: [arr[j], arr[j + 1]] });
+                    if (arr[j] > arr[j + 1]) {
+                        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                        steps.push({ type: 'swap', indices: [j, j + 1], values: [arr[j], arr[j + 1]] });
+                    }
+                }
+                steps.push({ type: 'sorted', index: n - i - 1 });
+            }
+            steps.push({ type: 'sorted', index: 0 }); 
+            barArray = arr; 
+        }
+
+        function positionComparisonText(bar1, bar2) {
+            const rect1 = bar1.getBoundingClientRect();
+            const rect2 = bar2.getBoundingClientRect();
+            const containerRect = barContainer.getBoundingClientRect();
+            comparisonText.style.left = `${(rect1.left + rect2.right) / 2 - containerRect.left}px`;
+            comparisonText.style.top = `${Math.min(rect1.top, rect2.top) - containerRect.top - 30}px`;
+        }
+
+        function animateStep(step) {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => bar.classList.remove('compare', 'sorted'));
+            comparisonText.innerHTML = ''; 
+            if (step.type === 'compare') {
+                const [bar1, bar2] = step.indices.map(index => bars[index]);
+                bar1.classList.add('compare');
+                bar2.classList.add('compare');
+                comparisonText.innerHTML = `${step.values[0]} ${step.values[0] > step.values[1] ? '>' : '<'} ${step.values[1]}`;
+                positionComparisonText(bar1, bar2);
+            } else if (step.type === 'swap') {
+                const [bar1, bar2] = step.indices.map(index => bars[index]);
+                [bar1.style.height, bar2.style.height] = [bar2.style.height, bar1.style.height];
+                // Update numbers inside bars
+                [bar1.querySelector('span').textContent, bar2.querySelector('span').textContent] = [step.values[0], step.values[1]];
+                comparisonText.innerHTML += ' <----SWAP';
+            } else if (step.type === 'sorted') {
+                bars[step.index].classList.add('sorted');
+            }
+        }
+
+        function startSorting() {
+            startBtn.disabled = true;
+            bubbleSort();
+            currentStep = 0;
+            runAnimation();
+        }
+
+        function runAnimation() {
+            if (currentStep < steps.length) {
+                animateStep(steps[currentStep]);
+                currentStep++;
+                setTimeout(runAnimation, 3000); // Adjust the speed here
+            } else {
+                alert('Sorting Complete!');
+                startBtn.disabled = false;
+                const bars = document.querySelectorAll('.bar');
+                bars.forEach((bar, index) => {
+                    bar.querySelector('span').textContent = barArray[index];
+                });
+            }
+        }
+
+        window.onload = initBars;
+    </script>
+
+    <h2 style="text-align: center; font-weight: bold;">Play this Video and See How it Works</h2>
+
+
+    <div style="text-align: center;">
+        <img id="playableGif" src="https://i.ytimg.com/vi/p6I7LIUqQnU/maxresdefault.jpg" alt="GIF"
+            style="width: 100%; max-width: 600px;">
+        <br>
+        <button id="playButton" onclick="playGif()">Play</button>
+        <button id="pauseButton" onclick="pauseGif()">Pause</button>
+    </div>
+    <script>
+        var gifElement = document.getElementById("playableGif");
+        var playButton = document.getElementById("playButton");
+        var pauseButton = document.getElementById("pauseButton");
+
+        var gifSrc = "https://cdn-images-1.medium.com/v2/resize:fill:1600:480/gravity:fp:0.5:0.4/1*GUkhhrPDfgdvvwVFo-il1g.gif";
+        var thumbnailSrc = "https://i.ytimg.com/vi/p6I7LIUqQnU/maxresdefault.jpg";
+        function playGif() {
+            gifElement.src = gifSrc;
+            playButton.disabled = true;
+            pauseButton.disabled = false;
+        }
+
+        function pauseGif() {
+            gifElement.src = thumbnailSrc;
+            playButton.disabled = false;
+            pauseButton.disabled = true;
+        }
+    </script>
+    <h1 style="text-align: center; font-weight: bold;">Now Sort the Shapes using Bubble Sort!</h1>
+    <h2 style="text-align: center;">Note that You can sort only Adjacent Pairs, Because it is BUBBLE SORT!</h2>
+
+    <div>
+        <h2>Squares</h2>
+        <div class="containers" id="squareContainer">
+        </div>
+        <div style="text-align: center; font-weight: bold;" class="success-message" id="squareSuccessMessage">Hurray!
+            You sorted the squares correctly!</div>
+    </div>
+
+    <div>
+        <h2>Triangles</h2>
+        <div class="containers" id="triangleContainer">
+        </div>
+        <div style="text-align: center; font-weight: bold;" class="success-message" id="triangleSuccessMessage">Hurray!
+            You sorted the triangles correctly!</div>
+    </div>
+
+    <div>
+        <h2>Circles</h2>
+        <div class="containers" id="circleContainer">
+        </div>
+        <div style="text-align: center; font-weight: bold;" class="success-message" id="circleSuccessMessage">Hurray!
+            You sorted the circles correctly!</div>
+    </div>
+
+    <div>
+        <h2>Rectangles</h2>
+        <div class="containers" id="rectangleContainer">
+        <div style="text-align: center; font-weight: bold;" class="success-message" id="rectangleSuccessMessage">Hurray!
+            You sorted the rectangles correctly!</div>
+    </div>
+
+    <script>
+        const squareContainer = document.getElementById('squareContainer');
+        const triangleContainer = document.getElementById('triangleContainer');
+        const circleContainer = document.getElementById('circleContainer');
+        const rectangleContainer = document.getElementById('rectangleContainer');
+        const squareSuccessMessage = document.getElementById('squareSuccessMessage');
+        const triangleSuccessMessage = document.getElementById('triangleSuccessMessage');
+        const circleSuccessMessage = document.getElementById('circleSuccessMessage');
+        const rectangleSuccessMessage = document.getElementById('rectangleSuccessMessage');
+        let draggingItem = null;
+        let draggingIndex = null;
+
+        function createSquare(size) {
+            const div = document.createElement('div');
+            div.classList.add('shape', 'square');
+            div.style.width = `${size}px`;
+            div.style.height = `${size}px`;
+            div.dataset.size = size;
+            div.draggable = true;
+            return div;
+        }
+
+        function createTriangle(size) {
+            const div = document.createElement('div');
+            div.classList.add('shape', 'triangle');
+            div.style.borderLeftWidth = `${size / 2}px`;
+            div.style.borderRightWidth = `${size / 2}px`;
+            div.style.borderBottomWidth = `${size}px`;
+            div.dataset.size = size;
+            div.draggable = true;
+            return div;
+        }
+
+        function createCircle(size) {
+            const div = document.createElement('div');
+            div.classList.add('shape', 'circle');
+            div.style.width = `${size}px`;
+            div.style.height = `${size}px`;
+            div.dataset.size = size;
+            div.draggable = true;
+            return div;
+        }
+
+        function createRectangle(width, height) {
+            const div = document.createElement('div');
+            div.classList.add('shape', 'rectangle');
+            div.style.width = `${width}px`;
+            div.style.height = `${height}px`;
+            div.dataset.width = width;
+            div.dataset.height = height;
+            div.draggable = true;
+            return div;
+        }
+
+        function initializeShapes(container, createShapeFunction, isRectangle = false) {
+            const items = [];
+            container.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const size = (i + 1) * 50;
+                const shape = isRectangle
+                    ? createShapeFunction(size, size / 2)  
+                    : createShapeFunction(size);
+                container.appendChild(shape);
+                items.push(shape);
+            }
+            shuffle(items, container);
+        }
+
+        function shuffle(array, container) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            container.innerHTML = '';
+            array.forEach(item => container.appendChild(item));
+        }
+
+        function swapShapes(shape1, shape2, container) {
+            const parent = shape1.parentElement;
+            const index1 = Array.from(parent.children).indexOf(shape1);
+            const index2 = Array.from(parent.children).indexOf(shape2);
+            parent.insertBefore(shape2, shape1);
+            parent.insertBefore(shape1, parent.children[index2 < index1 ? index2 : index2 + 1]);
+        }
+
+        function isBubbleSortValid(container) {
+            let valid = true;
+            let shapesArray = Array.from(container.children);
+            for (let i = 0; i < shapesArray.length - 1; i++) {
+                if (parseInt(shapesArray[i].dataset.size || shapesArray[i].dataset.width) > parseInt(shapesArray[i + 1].dataset.size || shapesArray[i + 1].dataset.width)) {
+                    valid = false;
+                    break;
+                }
+            }
+            return valid;
+        }
+
+        function checkSorting() {
+            const squareValid = isBubbleSortValid(squareContainer);
+            const triangleValid = isBubbleSortValid(triangleContainer);
+            const circleValid = isBubbleSortValid(circleContainer);
+            const rectangleValid = isBubbleSortValid(rectangleContainer);
+
+            squareSuccessMessage.style.display = squareValid ? 'block' : 'none';
+            triangleSuccessMessage.style.display = triangleValid ? 'block' : 'none';
+            circleSuccessMessage.style.display = circleValid ? 'block' : 'none';
+            rectangleSuccessMessage.style.display = rectangleValid ? 'block' : 'none';
+        }
+
+        function handleDragStart(e) {
+            draggingItem = e.target;
+            draggingIndex = Array.from(draggingItem.parentElement.children).indexOf(draggingItem);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggingItem = null;
+            draggingIndex = null;
+            checkSorting();
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            if (draggingItem && e.target.classList.contains('shape') && draggingItem !== e.target) {
+                const targetShape = e.target;
+                const targetIndex = Array.from(targetShape.parentElement.children).indexOf(targetShape);
+                const draggingIndex = Array.from(draggingItem.parentElement.children).indexOf(draggingItem);
+
+                
+                if (Math.abs(draggingIndex - targetIndex) === 1 && targetIndex > draggingIndex) {
+                    swapShapes(draggingItem, targetShape, draggingItem.parentElement);
+                } else {
+                    alert("Please swap only adjacent shapes in the correct order.");
+                }
+            }
+        }
+
+        function addEventListeners(container) {
+            container.addEventListener('dragstart', handleDragStart);
+            container.addEventListener('dragend', handleDragEnd);
+            container.addEventListener('dragover', handleDragOver);
+            container.addEventListener('drop', handleDrop);
+        }
+
+        function initialize() {
+            initializeShapes(squareContainer, createSquare);
+            initializeShapes(triangleContainer, createTriangle);
+            initializeShapes(circleContainer, createCircle);
+            initializeShapes(rectangleContainer, createRectangle, true);
+
+            addEventListeners(squareContainer);
+            addEventListeners(triangleContainer);
+            addEventListeners(circleContainer);
+            addEventListeners(rectangleContainer);
+        }
+
+        initialize();
+    </script>
+
+
+    <div class="container">
+        <!-- List 1 -->
+        <div class="sortable-container">
+            <h1><b>Now Play with the numbers</b></h1>
+            <ul class="sortable-list">
+                <li class="sortable-item" data-value="8">8</li>
+                <li class="sortable-item" data-value="1">1</li>
+                <li class="sortable-item" data-value="5">5</li>
+                <li class="sortable-item" data-value="2">2</li>
+                <li class="sortable-item" data-value="9">9</li>
+            </ul>
+            <div class="message">Hurray! You have done it!</div>
+            <img class="celebration-gif"
+                src="https://gifdb.com/images/high/colorful-unicorn-hands-up-funny-dancing-elly0bnazzr48ct9.gif"
+                alt="Celebration">
+        </div>
+
+        <!-- List 2 -->
+        <div class="sortable-container">
+            <h2>Example 2</h2>
+            <ul class="sortable-list">
+                <li class="sortable-item" data-value="3">3</li>
+                <li class="sortable-item" data-value="7">7</li>
+                <li class="sortable-item" data-value="4">4</li>
+                <li class="sortable-item" data-value="6">6</li>
+                <li class="sortable-item" data-value="2">2</li>
+            </ul>
+            <div class="message">Hurray! You have done it!</div>
+            <img class="celebration-gif"
+                src="https://gifdb.com/images/high/colorful-unicorn-hands-up-funny-dancing-elly0bnazzr48ct9.gif"
+                alt="Celebration">
+        </div>
+
+        <!-- List 3 -->
+        <div class="sortable-container">
+            <h2>Example 3</h2>
+            <ul class="sortable-list">
+                <li class="sortable-item" data-value="12">12</li>
+                <li class="sortable-item" data-value="4">4</li>
+                <li class="sortable-item" data-value="7">7</li>
+                <li class="sortable-item" data-value="1">1</li>
+                <li class="sortable-item" data-value="9">9</li>
+            </ul>
+            <div class="message">Hurray! You have done it!</div>
+            <img class="celebration-gif"
+                src="https://gifdb.com/images/high/colorful-unicorn-hands-up-funny-dancing-elly0bnazzr48ct9.gif"
+                alt="Celebration">
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.sortable-container').forEach(container => {
+            const list = container.querySelector('.sortable-list');
+            const items = Array.from(list.children);
+            const message = container.querySelector('.message');
+            const celebrationGif = container.querySelector('.celebration-gif');
+            let steps = [];
+            let currentIndex = 0;
+
+            function getCurrentOrder() {
+                return Array.from(list.children).map(item => parseInt(item.dataset.value));
+            }
+
+            function bubbleSortStep(array) {
+                let steps = [];
+                for (let i = 0; i < array.length - 1; i++) {
+                    for (let j = 0; j < array.length - 1 - i; j++) {
+                        if (array[j] > array[j + 1]) {
+                            [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                            steps.push({ index1: j, index2: j + 1, array: [...array] });
+                        }
+                    }
+                }
+                return steps;
+            }
+
+            function highlightItems(index1, index2) {
+                items.forEach((item, index) => {
+                    item.classList.remove('highlight');
+                    if (index === index1 || index === index2) {
+                        item.classList.add('highlight');
+                    }
+                });
+            }
+
+            function applyStep(step) {
+                highlightItems(step.index1, step.index2);
+                setTimeout(() => {
+                    items[step.index1].textContent = step.array[step.index1];
+                    items[step.index2].textContent = step.array[step.index2];
+                    highlightItems(-1, -1);
+                    currentIndex++;
+                    if (currentIndex >= steps.length) {
+                        message.style.display = 'block';
+                        showCelebrationGif(); 
+                    }
+                }, 1000);
+            }
+
+            function initialize() {
+                const array = getCurrentOrder();
+                steps = bubbleSortStep(array);
+                setSortable();
+            }
+
+            function setSortable() {
+                items.forEach((item, index) => {
+                    item.setAttribute('draggable', 'true');
+                    item.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', index);
+                    });
+                    item.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                    });
+                    item.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                        const targetIndex = index;
+
+                        if (Math.abs(draggedIndex - targetIndex) === 1) {
+                            
+                            if (steps[currentIndex]) {
+                                if (draggedIndex === steps[currentIndex].index1 && targetIndex === steps[currentIndex].index2) {
+                                    applyStep(steps[currentIndex]);
+                                } else {
+                                    alert("Please follow Bubble Sort steps by swapping adjacent numbers.");
+                                }
+                            }
+                        } else {
+                            alert("You can only swap adjacent numbers.");
+                        }
+                    });
+                });
+            }
+
+            function showCelebrationGif() {
+                console.log("Displaying celebration GIF"); // Debugging log
+                celebrationGif.style.display = 'block';
+                setTimeout(() => {
+                    celebrationGif.style.display = 'none';
+                }, 5000); 
+            }
+
+            initialize();
+        });
+    </script>
+    <div style="text-align: center; font-weight: bold;">
+        <a href="https://youtube.com/shorts/9_BVgKXji9s?si=0MdrCv9X-aOqYqQq" class="video-link" target="_blank"
+            rel="noopener noreferrer">
+            Watch this Simple Vedio on Youtube
+        </a>
+    </div>
+    <a href="quick_sort.html" style="color: white; text-decoration: none;">Click here to Learn About Quick Sorting</a>
+
+</body>
+
+</html>

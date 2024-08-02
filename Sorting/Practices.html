@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quick Sort with Shapes and Numbers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url('https://wallpapercave.com/wp/wp1920736.jpg');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+
+        #shapes-container,
+        #numbers-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .shape,
+        .number {
+            display: inline-block;
+            margin: 10px;
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+            line-height: 80px;
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .circle {
+            border-radius: 50%;
+            background-color: lightblue;
+        }
+
+        .square {
+            background-color: lightgreen;
+        }
+
+        .triangle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 80px solid lightcoral;
+        }
+
+        .pivot {
+            border: 2px solid red;
+        }
+
+        .number {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #ddd;
+        }
+
+        .instructions {
+            margin-bottom: 20px;
+        }
+
+        #pivot-selection,
+        #number-toggle {
+            margin-bottom: 20px;
+        }
+
+        .button {
+            width: 120px;
+            height: 50px;
+            background-size: cover;
+            background-position: center;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(1);
+        }
+
+        #checkButton {
+            margin-top: 20px;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        p {
+            text-align: left;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="color: blue; text-decoration: underline;"><b>Let us Have Some Fun with Quick Sort!</b></h1>
+
+    <div id="shapes-container"></div>
+    <div id="numbers-container" style="display: none;"></div>
+    <div id="check-status" class="check-status">Select a pivot and drag the items to sort</div>
+    <div class="button-container">
+        <button id="toggleShapes" class="button"
+            style="background-image: url('https://png.pngtree.com/png-vector/20240727/ourmid/pngtree-cartoon-of-the-quiet-coyote-hand-gesture-png-image_13246447.png');"></button>
+        <div class="button-text">Click on this Fox to play with different Shapes</div>
+    </div>
+    <div class="button-container">
+        <button id="toggleNumbers" class="button"
+            style="background-image: url('https://freedesignfile.com/image/preview/22002/cartoon-cat-clipart.png');"></button>
+        <div class="button-text">Click on this Cat to play with the numbers</div>
+    </div>
+    <script>
+        let shapesContainer = document.getElementById('shapes-container');
+        let numbersContainer = document.getElementById('numbers-container');
+        let checkStatusText = document.getElementById('check-status');
+        let toggleShapesButton = document.getElementById('toggleShapes');
+        let toggleNumbersButton = document.getElementById('toggleNumbers');
+        let pivot = null;
+        let shapeIndex = 0;
+        let numberIndex = 0;
+
+        // Define circles, squares, and triangles
+        const shapes = [
+            [
+                { size: 80, id: 1, type: 'circle' },
+                { size: 100, id: 2, type: 'circle' },
+                { size: 60, id: 3, type: 'circle' },
+                { size: 120, id: 4, type: 'circle' },
+                { size: 90, id: 5, type: 'circle' }
+            ],
+            [
+                { size: 70, id: 6, type: 'square' },
+                { size: 90, id: 7, type: 'square' },
+                { size: 50, id: 8, type: 'square' },
+                { size: 110, id: 9, type: 'square' },
+                { size: 85, id: 10, type: 'square' }
+            ],
+            [
+                { size: 80, id: 11, type: 'triangle' },
+                { size: 100, id: 12, type: 'triangle' },
+                { size: 60, id: 13, type: 'triangle' },
+                { size: 120, id: 14, type: 'triangle' },
+                { size: 90, id: 15, type: 'triangle' }
+            ]
+        ];
+
+        // Define number arrays
+        const numbers = [
+            [5, 3, 8, 1, 2],
+            [10, 7, 6, 4, 9],
+            [15, 13, 20, 17, 12]
+        ];
+
+        // Function to display shapes
+        function displayShapes(arr) {
+            shapesContainer.innerHTML = '';
+            arr.forEach(shape => {
+                let div = document.createElement('div');
+                div.className = `shape ${shape.type}`;
+                if (shape.type === 'triangle') {
+                    div.style.borderLeft = `${shape.size / 2}px solid transparent`;
+                    div.style.borderRight = `${shape.size / 2}px solid transparent`;
+                    div.style.borderBottom = `${shape.size}px solid lightcoral`;
+                } else {
+                    div.style.width = `${shape.size}px`;
+                    div.style.height = `${shape.size}px`;
+                }
+                div.dataset.id = shape.id;
+                div.dataset.size = shape.size;
+                div.textContent = shape.size;
+                div.draggable = true;
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragover', handleDragOver);
+                div.addEventListener('drop', handleDrop);
+                div.addEventListener('click', () => selectPivot(shape));
+                shapesContainer.appendChild(div);
+            });
+        }
+
+        // Function to display numbers
+        function displayNumbers(arr) {
+            numbersContainer.innerHTML = '';
+            arr.forEach(num => {
+                let div = document.createElement('div');
+                div.className = 'number';
+                div.textContent = num;
+                div.dataset.value = num;
+                div.draggable = true;
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragover', handleDragOver);
+                div.addEventListener('drop', handleDrop);
+                div.addEventListener('click', () => selectPivotNumber(num));
+                numbersContainer.appendChild(div);
+            });
+        }
+
+        // Function to update the check status text
+        function updateCheckStatus(text) {
+            checkStatusText.innerText = text;
+        }
+
+        // Function to handle drag start
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.value || e.target.dataset.id);
+        }
+
+        // Function to handle drag over
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        // Function to handle drop
+        function handleDrop(e) {
+            e.preventDefault();
+            const draggedValue = e.dataTransfer.getData('text/plain');
+            const draggedElement = document.querySelector(`.shape[data-id='${draggedValue}']`) || document.querySelector(`.number[data-value='${draggedValue}']`);
+            const targetElement = e.target;
+
+            if (targetElement.classList.contains('shape') || targetElement.classList.contains('number')) {
+                const draggedSize = parseInt(draggedElement.dataset.size || draggedElement.dataset.value);
+                const targetSize = parseInt(targetElement.dataset.size || targetElement.dataset.value);
+
+                if (pivot) {
+                    const pivotSize = pivot.size;
+                    const isValidSwap = (draggedSize < pivotSize && targetSize >= pivotSize) || (draggedSize >= pivotSize && targetSize < pivotSize);
+
+                    if (isValidSwap) {
+                        if (draggedElement.classList.contains('shape')) {
+                            const draggedShape = currentShapes.find(s => s.id == draggedValue);
+                            const targetShape = currentShapes.find(s => s.id == targetElement.dataset.id);
+                            if (draggedShape && targetShape) {
+                                [draggedShape.size, targetShape.size] = [targetShape.size, draggedShape.size];
+                                displayShapes(currentShapes);
+                            }
+                        } else {
+                            const draggedNumberIndex = currentNumbers.indexOf(parseInt(draggedValue));
+                            const targetNumberIndex = currentNumbers.indexOf(parseInt(targetElement.dataset.value));
+                            if (draggedNumberIndex !== -1 && targetNumberIndex !== -1) {
+                                [currentNumbers[draggedNumberIndex], currentNumbers[targetNumberIndex]] = [currentNumbers[targetNumberIndex], currentNumbers[draggedNumberIndex]];
+                                displayNumbers(currentNumbers);
+                            }
+                        }
+
+                        updateCheckStatus(`Swapped ${draggedSize} and ${targetSize}`);
+
+                       
+                        if (currentShapes && isSorted(currentShapes)) {
+                            updateCheckStatus('Hurray! All shapes are sorted.');
+                        } else if (currentNumbers && isSortedNumbers(currentNumbers)) {
+                            updateCheckStatus('Hurray! All numbers are sorted.');
+                        }
+                    } else {
+                        updateCheckStatus(`Invalid move. Only swap across the pivot.`);
+                    }
+                } else {
+                    updateCheckStatus(`Please select a pivot first.`);
+                }
+            }
+        }
+
+        // Function to select the pivot for shapes
+        function selectPivot(shape) {
+            pivot = shape;
+            const shapeElements = document.querySelectorAll('.shape');
+            shapeElements.forEach(el => el.classList.remove('pivot'));
+            document.querySelector(`.shape[data-id='${shape.id}']`).classList.add('pivot');
+            updateCheckStatus(`Pivot selected: ${shape.size}`);
+        }
+
+        // Function to select the pivot for numbers
+        function selectPivotNumber(num) {
+            pivot = { size: num };
+            const numberElements = document.querySelectorAll('.number');
+            numberElements.forEach(el => el.classList.remove('pivot'));
+            document.querySelector(`.number[data-value='${num}']`).classList.add('pivot');
+            updateCheckStatus(`Pivot selected: ${num}`);
+        }
+
+        // Function to toggle between shapes
+        function toggleShapes() {
+            shapeIndex = (shapeIndex + 1) % shapes.length;
+            currentShapes = shapes[shapeIndex];
+            displayShapes(currentShapes);
+            updateCheckStatus('Select a pivot and drag the shapes to sort');
+            numbersContainer.style.display = 'none';
+            shapesContainer.style.display = 'flex';
+        }
+
+        // Function to toggle between numbers
+        function toggleNumbers() {
+            numberIndex = (numberIndex + 1) % numbers.length;
+            currentNumbers = numbers[numberIndex];
+            displayNumbers(currentNumbers);
+            updateCheckStatus('Select a pivot and drag the numbers to sort');
+            shapesContainer.style.display = 'none';
+            numbersContainer.style.display = 'flex';
+        }
+
+        // Function to check if the shapes array is sorted
+        function isSorted(arr) {
+            return arr.every((val, i, arr) => !i || arr[i - 1].size <= val.size);
+        }
+
+        // Function to check if the numbers array is sorted
+        function isSortedNumbers(arr) {
+            return arr.every((val, i, arr) => !i || arr[i - 1] <= val);
+        }
+
+        // Initialize display
+        let currentShapes = shapes[shapeIndex];
+        let currentNumbers = numbers[numberIndex];
+        window.onload = function () {
+            displayShapes(currentShapes);
+            displayNumbers(currentNumbers);
+        };
+
+        // Event listeners for toggle buttons
+        toggleShapesButton.addEventListener('click', toggleShapes);
+        toggleNumbersButton.addEventListener('click', toggleNumbers);
+    </script>
+    <h1>If u want to know how to do this, See below given Explaination</h1>
+    <p style="text-align: left;"><b>First Consider Sorting circles</b></p>
+
+    <p style="text-decoration: underline;"><b>Step-by-Step Walkthrough</b></p>
+
+    <p style="color: black;"><b>1.Choose a Pivot:</b></p>
+
+
+    <p> We pick one circle to be our “pivot” (the circle we compare all others to). Let’s choose the circle with size
+        100.</p>
+    <p style="color: black;"><b> 2.Partition the Circles:</b></p>
+
+    <p> We will compare each circle’s size to the pivot (100):</p>
+
+    <p> Circle with size 120 is bigger than 100, so it goes to the right side.</p>
+    <p> Circle with size 80 is smaller than 100, so it goes to the left side.</p>
+    <p> Circle with size 60 is also smaller than 100, so it goes to the left side.</p>
+    <p> Circle with size 90 is smaller than 100, so it goes to the left side.</p>
+    <p> After putting them in the right places, we have:</p>
+
+    <p> Left Side: Circles with sizes 80, 60, and 90</p>
+    <p> Pivot: Circle with size 100</p>
+    <p> Right Side: Circle with size 120</p>
+    <p> Sort the Left Side:</p>
+
+    <p style="color: black;"><b> 3.Now, let’s sort the circles on the left side (80, 60, 90). We pick another circle as
+            the pivot here, let’s say
+            80.</b></p>
+
+    <p style="color: black;"><b>4. Compare each circle’s size to the new pivot (80):</b></p>
+
+    <p> Circle with size 60 is smaller than 80, so it goes to the left side.</p>
+    <p> Circle with size 90 is bigger than 80, so it goes to the right side.</p>
+    <p> After putting them in the right places, we have:</p>
+
+    <p> Left Side: Circle with size 60</p>
+    <p> Pivot: Circle with size 80</p>
+    <p> Right Side: Circle with size 90</p>
+    <p> Both 60 and 90 are already sorted because there’s only one circle on each side.</p>
+
+    <p style="color: black;"><b> 5.Combine the Results:</b></p>
+
+    <p> Put everything together:</p>
+    <p> Left Side: Circle with size 60</p>
+    <p> Pivot: Circle with size 80</p>
+    <p> Right Side: Circle with size 90</p>
+    <p> Adding the right side (circle with size 120) to the sorted list, we get the final sorted list of circles:</p>
+    <p style="color: black;"><b> 6.Final Sorted List: 60, 80, 90, 100, 120</b></p>
+
+    <h2><b>Now take your Rough Book and Try to Solving this</b></h2>
+    <h1>First Solve it Using Quick Sort and Then Bubble Sort</h1>
+    <div style="text-align: center; margin: 20px;">
+        <img src="https://learning.covoji.com/wp-content/uploads/2019/05/Execise_SmalltoGreat.png" alt="Exercise Image"
+            style="width: 1400px; height: auto; border: 1px solid #ccc;">
+    </div>
+
+</body>
+
+</html>
